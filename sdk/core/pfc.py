@@ -27,8 +27,8 @@ class PrefrontalCache:
             (((i + 1) / last) * ev.importance, i, ev) for i, ev in enumerate(items)
         ]
         top = heapq.nlargest(budget, scored, key=lambda t: t[0])
-        # newest-first within chosen
-        top_sorted = sorted(top, key=lambda t: t[1], reverse=True)
+        # Order primarily by score (higher first) and secondarily by recency.
+        top_sorted = sorted(top, key=lambda t: (t[0], t[1]), reverse=True)
         return [ev.content for _, _, ev in top_sorted]
 
     def __len__(self) -> int:  # pragma: no cover
