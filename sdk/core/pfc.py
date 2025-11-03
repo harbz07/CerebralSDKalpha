@@ -22,9 +22,10 @@ class PrefrontalCache:
             return []
         items = list(self._buf)                   # oldest .. newest
         last = len(items)
-        # weight = normalized recency × importance
+        # weight = importance primary with recency as a mild boost
         scored: List[Tuple[float, int, MemoryEvent]] = [
-            (((i + 1) / last) * ev.importance, i, ev) for i, ev in enumerate(items)
+            (ev.importance * (1.0 + ((i + 1) / last)), i, ev)
+            for i, ev in enumerate(items)
         ]
         top = heapq.nlargest(budget, scored, key=lambda t: t[0])
         # newest-first within chosen

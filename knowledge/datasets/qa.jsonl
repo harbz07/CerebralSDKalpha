@@ -1,0 +1,3 @@
+{"id": "qa-001", "question": "Who leads Project Atlas?", "answers": ["Harvey"], "embedding": [0.9, 0.1, 0.0]}
+{"id": "qa-002", "question": "What city hosts Cerebral Summit?", "answers": ["Lisbon"], "embedding": [0.2, 0.8, 0.1]}
+{"id": "qa-003", "question": "Which stack powers the Parietal graph?", "answers": ["NetworkX"], "embedding": [0.1, 0.1, 0.9]}

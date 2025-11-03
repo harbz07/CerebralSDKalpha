@@ -60,7 +60,16 @@ class ParietalGraph:
     def export(self, fmt: str = "graphml") -> bytes:
         if fmt == "graphml":
             buf = io.BytesIO()
-            nx.write_graphml(self._g, buf)
+            g = nx.MultiDiGraph()
+            for node, data in self._g.nodes(data=True):
+                g.add_node(node, **data)
+            for u, v, key, data in self._g.edges(keys=True, data=True):
+                evidence = data.get("evidence")
+                payload = data.copy()
+                if evidence is not None:
+                    payload["evidence"] = json.dumps(evidence.__dict__)
+                g.add_edge(u, v, key=key, **payload)
+            nx.write_graphml(g, buf)
             return buf.getvalue()
         if fmt == "jsonl":
             buf = io.StringIO()
