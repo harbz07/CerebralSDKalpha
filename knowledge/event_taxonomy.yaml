@@ -1,0 +1,31 @@
+# Scoring & consolidation policy for memory events
+# Four 0..10 dimensions; consolidate when sum >= 22 ("Catch-22")
+scoring_dimensions:
+  - error_severity         # how bad/impactful was the failure?
+  - novelty               # how unusual/rare is the info?
+  - foundation_weight     # does it support core knowledge/invariants?
+  - rlhf_weight           # does it improve behavior aligned with preferences?
+
+consolidation_threshold_total: 22
+
+classes:
+  Chaos:
+    hint: "errors/corrections worth remembering to avoid repeats"
+    default_bias: 1.0     # additive nudges for class bias (optional)
+  Foundation:
+    hint: "core knowledge & invariants"
+    default_bias: 2.0
+  Glow:
+    hint: "insights/identity-defining moments; keep even if messy"
+    default_bias: 2.5
+
+retention:
+  short_term_max: 1000     # PFC buffer length
+  long_term_top_k: 5       # default top-k for semantic recall
+
+pin_rules:
+  always_pin_tags: ["invariant", "identity", "commitment"]  # bypass threshold
+  never_pin_sources: []                                      # e.g., "low_trust_scraper"
+
+explanations:
+  when_declining_consolidation: true   # log why an event missed threshold

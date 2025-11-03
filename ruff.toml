@@ -1,0 +1,15 @@
+target-version = "py39"
+line-length = 100
+extend-exclude = [".venv", "build", "dist", ".mypy_cache", ".ruff_cache"]
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP", "C4", "PIE", "RET", "SIM", "RUF"]
+ignore = ["E203", "E501"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+
+[lint.isort]
+known-first-party = ["sdk"]
+combine-as-imports = true
