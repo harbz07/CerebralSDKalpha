@@ -94,6 +94,14 @@ class MemoryEvent:
             embedding=list(payload["embedding"]) if payload.get("embedding") is not None else None,
         )
 
+from typing import Sequence, List
 
-__all__ = ["MemoryEvent", "SCORE_DIMENSIONS"]
+class VectorIndex:
+    def add(self, ids: Sequence[str], vectors: Sequence[Sequence[float]]) -> None:
+        raise NotImplementedError
+
+    def search(self, query: Sequence[float], top_k: int) -> List[tuple[str, float]]:
+        raise NotImplementedError
+
+__all__ = ["MemoryEvent", "SCORE_DIMENSIONS", "VectorIndex"]
 
