@@ -1,0 +1,26 @@
+name: eval-harness
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[dev]
+      - name: Run unit tests
+        run: pytest --maxfail=1 --disable-warnings
+      - name: Run eval harness (default)
+        run: python -m sdk.harness.run --report-dir reports
+      - name: Run eval harness (no-kg)
+        run: python -m sdk.harness.run --report-dir reports --no-kg
+      - name: Run eval harness (only-pfc)
+        run: python -m sdk.harness.run --report-dir reports --only-pfc

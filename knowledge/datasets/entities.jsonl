@@ -1,0 +1,3 @@
+{"entity": "Alice", "type": "person", "attributes": {"role": "Owner", "project": "Alpha"}}
+{"entity": "Bob", "type": "person", "attributes": {"role": "Owner", "project": "Beta"}}
+{"entity": "Carol", "type": "person", "attributes": {"role": "Owner", "project": "Gamma"}}
