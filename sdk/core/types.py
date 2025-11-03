@@ -1,100 +1,99 @@
-from __future__ import annotations
+"""Core dataclasses and helpers shared across the Cerebral SDK memory modules.
 
-"""Core datatypes and protocols for the Cerebral SDK memory stack.
-
-The RFC stored in this repository primarily lived in ``types.py`` so we
-consolidate the prose into docstrings and executable code.  The module exports
-lightweight dataclasses used across the PrefrontalCache, Hippocampus and
-ParietalGraph implementations, as well as a handful of helper functions used by
-both runtime and tests.
+The original repository shipped an RFC in place of code.  This module replaces
+that document with concrete, well‑typed implementations that the rest of the
+SDK (Hippocampus, PrefrontalCache, ParietalGraph) can import without relying on
+stubbed behaviour.
 """
+
+from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Protocol, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, MutableMapping, Optional, Sequence
 
-Number = float
+SCORE_DIMENSIONS: Sequence[str] = (
+    "error_severity",
+    "novelty",
+    "foundation_weight",
+    "rlhf_weight",
+)
+
+
+def _coerce_timestamp(value: Any) -> datetime:
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, str):
+        try:
+            return datetime.fromisoformat(value)
+        except ValueError as exc:  # pragma: no cover - defensive guard
+            raise ValueError(f"Invalid ISO timestamp: {value!r}") from exc
+    raise TypeError(f"Unsupported timestamp type: {type(value)!r}")
 
 
 @dataclass(slots=True)
 class MemoryEvent:
-    """Immutable record representing a single memory observation."""
+    """Container for all memory subsystems.
+
+    Attributes mirror the schema from the Memory API RFC.  The class performs
+    minimal validation so callers receive early feedback if required score
+    dimensions are missing.
+    """
 
     id: str
     timestamp: datetime
     content: str
     event_class: str
-    scores: Mapping[str, Number]
-    importance: Number
-    novelty: Number
+    scores: MutableMapping[str, float]
+    importance: float
+    novelty: float
     tags: List[str] = field(default_factory=list)
-    metadata: MutableMapping[str, Number | str] = field(default_factory=dict)
-    embedding: Optional[Sequence[Number]] = None
+    metadata: MutableMapping[str, Any] = field(default_factory=dict)
+    embedding: Optional[Sequence[float]] = None
 
-    def total_score(self, *, class_bias: Mapping[str, Number]) -> Number:
-        base = sum(self.scores.values())
-        return base + float(class_bias.get(self.event_class, 0.0))
+    def __post_init__(self) -> None:
+        self.timestamp = _coerce_timestamp(self.timestamp)
+        missing: List[str] = [dim for dim in SCORE_DIMENSIONS if dim not in self.scores]
+        if missing:
+            raise ValueError(f"scores missing dimensions: {', '.join(missing)}")
 
+    @property
+    def total_score(self) -> float:
+        """Return the Catch‑22 score (sum of the four canonical dimensions)."""
 
-@dataclass(slots=True)
-class Retrieval:
-    """Container for retrieval results emitted by subsystems."""
+        return float(sum(self.scores[dim] for dim in SCORE_DIMENSIONS))
 
-    source: str
-    items: List[str]
-    metadata: Dict[str, object] = field(default_factory=dict)
-
-
-@dataclass(slots=True)
-class AblationConfig:
-    """Toggle switches used by the evaluation harness and ContextComposer."""
-
-    no_kg: bool = False
-    no_ltm: bool = False
-    only_pfc: bool = False
+    def to_dict(self) -> Dict[str, Any]:
+        data: Dict[str, Any] = {
+            "id": self.id,
+            "timestamp": self.timestamp.isoformat(),
+            "content": self.content,
+            "event_class": self.event_class,
+            "scores": dict(self.scores),
+            "importance": self.importance,
+            "novelty": self.novelty,
+            "tags": list(self.tags),
+            "metadata": dict(self.metadata),
+        }
+        if self.embedding is not None:
+            data["embedding"] = list(self.embedding)
+        return data
 
     @classmethod
-    def from_flags(
-        cls,
-        *,
-        no_kg: bool = False,
-        no_ltm: bool = False,
-        only_pfc: bool = False,
-    ) -> "AblationConfig":
-        if only_pfc and (no_kg or no_ltm):
-            raise ValueError("--only-pfc already implies --no-kg and --no-ltm")
-        return cls(no_kg=no_kg or only_pfc, no_ltm=no_ltm or only_pfc, only_pfc=only_pfc)
+    def from_dict(cls, payload: Mapping[str, Any]) -> "MemoryEvent":
+        return cls(
+            id=str(payload["id"]),
+            timestamp=payload["timestamp"],
+            content=str(payload.get("content", "")),
+            event_class=str(payload.get("event_class", "")),
+            scores=dict(payload.get("scores", {})),
+            importance=float(payload.get("importance", 0.0)),
+            novelty=float(payload.get("novelty", 0.0)),
+            tags=list(payload.get("tags", [])),
+            metadata=dict(payload.get("metadata", {})),
+            embedding=list(payload["embedding"]) if payload.get("embedding") is not None else None,
+        )
 
 
-class VectorIndex(Protocol):
-    """Protocol implemented by FAISS/Numpy vector indexes."""
+__all__ = ["MemoryEvent", "SCORE_DIMENSIONS"]
 
-    dim: int
-
-    def add(self, ids: Sequence[str], vectors: Sequence[Sequence[Number]]) -> None: ...
-
-    def search(self, query: Sequence[Number], top_k: int) -> List[Tuple[str, float]]: ...
-
-
-@dataclass
-class Report:
-    """Structure returned by evaluation harness runs."""
-
-    metrics: Dict[str, Number]
-    provenance: Dict[str, object]
-
-
-def normalise(vectors: Iterable[Sequence[Number]]) -> List[List[Number]]:
-    import numpy as np
-
-    arr = np.asarray(list(vectors), dtype=np.float32)
-    if arr.size == 0:
-        return []
-    norms = np.linalg.norm(arr, axis=1, keepdims=True)
-    norms[norms == 0] = 1.0
-    return (arr / norms).tolist()
-
-
-def chunk(iterable: Sequence[str], size: int) -> Iterator[List[str]]:
-    for i in range(0, len(iterable), size):
-        yield list(iterable[i : i + size])
