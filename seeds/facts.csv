@@ -1,0 +1,7 @@
+type,subject,predicate,object,source
+Person,Harvey,WORKS_ON,Cerebral SDK,"seed:persona"
+Project,Cerebral SDK,USES,Cerebral Studio,"seed:persona"
+Concept,Global Workspace,RELATES_TO,Consolidation,"seed:concepts"
+Artifact,Cerebral Studio,OWNED_BY,Open-source,"seed:artifact"
+Project,Cerebral SDK,USES,Knowledge Graph,"seed:concepts"
+Concept,Neuromodulation,RELATES_TO,Decision Gating,"seed:concepts"

@@ -1,0 +1,11 @@
+pfc:
+  max_events: 1000
+  sample_budget: 8
+hippocampus:
+  similarity_threshold: 0.80
+  top_k: 5
+  index: faiss_flat
+parietal:
+  dedupe_similarity_threshold: 0.90
+compose:
+  reserved_output_tokens: 2048

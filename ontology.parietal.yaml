@@ -1,0 +1,49 @@
+# Lightweight schema for the Parietal (knowledge-graph) store
+entities:
+  Person:
+    keys: ["name"]
+    attrs: ["role", "affiliation", "handles"]
+  Project:
+    keys: ["name"]
+    attrs: ["status", "since", "tags"]
+  Concept:
+    keys: ["term"]
+    attrs: ["aliases", "domain"]
+  Org:
+    keys: ["name"]
+    attrs: ["type", "urls"]
+  Artifact:
+    keys: ["name"]
+    attrs: ["kind", "repo", "version"]
+
+relations:
+  - name: WORKS_ON
+    domain: Person
+    range: Project
+  - name: USES
+    domain: Project
+    range: Artifact
+  - name: RELATES_TO
+    domain: Concept
+    range: Concept
+  - name: DERIVES_FROM
+    domain: Artifact
+    range: Artifact
+  - name: OWNED_BY
+    domain: Artifact
+    range: Org
+  - name: MEMBER_OF
+    domain: Person
+    range: Org
+
+evidence:
+  fields: ["source", "url", "timestamp", "confidence", "snippet"]
+
+canonicalization:
+  dedupe_similarity_threshold: 0.90
+  case_sensitive: false
+  alias_fields: {"Person":["handles","aliases"], "Concept":["aliases"]}
+
+export:
+  graphml: true
+  jsonl: true
