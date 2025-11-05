@@ -3,7 +3,8 @@
 from .types import MemoryEvent, SCORE_DIMENSIONS
 from .pfc import PrefrontalCache
 from .hippocampus import Hippocampus, CATCH_22_THRESHOLD, DEFAULT_CLASS_BIAS
-from .parietal import ParietalGraph, Evidence, Fact
+from .parietal import ParietalGraph, Evidence, Fact, ReasoningPath
+from .cerebral import CerebralMemory
 
 __all__ = [
     "MemoryEvent",
@@ -15,5 +16,7 @@ __all__ = [
     "ParietalGraph",
     "Evidence",
     "Fact",
+    "ReasoningPath",
+    "CerebralMemory",
 ]
 
