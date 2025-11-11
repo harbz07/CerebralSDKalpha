@@ -36,7 +36,7 @@ class Hippocampus:
         qn = float(np.linalg.norm(q)) + 1e-8
         sims = []
         for ev, n in zip(self._events, self._norms):
-            v = np.asarray(ev.embedding, dtype=np.float32)  # type: ignore
+            v = np.asarray(ev.embedding, dtype=np.float32)
             sims.append(float(np.dot(v, q) / (n * qn)))
         k = top_k or self.top_k
         ranked = sorted(zip(sims, self._events), key=lambda t: t[0], reverse=True)

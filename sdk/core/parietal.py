@@ -15,7 +15,10 @@ class Evidence:
 
 @dataclass
 class Fact:
-    h: str; r: str; t: str; evidence: Optional[Evidence]
+    h: str
+    r: str
+    t: str
+    evidence: Optional[Evidence]
 
 def _similar(a: str, b: str) -> float:
     return difflib.SequenceMatcher(a=a.lower(), b=b.lower()).ratio()
@@ -29,7 +32,7 @@ class ParietalGraph:
     def _canonicalise(self, term: str) -> str:
         for node in self._g.nodes:
             if _similar(term, self._g.nodes[node].get("label", node)) >= self._thr:
-                return node
+                return str(node)
         return term
 
     def upsert_triplet(self, h: str, r: str, t: str, evidence: Optional[Evidence] = None) -> None:
@@ -71,14 +74,14 @@ class ParietalGraph:
             nx.write_graphml(graph, buf)
             return buf.getvalue()
         if fmt == "jsonl":
-            buf = io.StringIO()
+            json_buf = io.StringIO()
             for u, v, k, data in self._g.edges(keys=True, data=True):
                 ev = data.get("evidence")
-                buf.write(json.dumps({
+                json_buf.write(json.dumps({
                     "h": self._g.nodes[u].get("label", u),
                     "r": data.get("relation", k),
                     "t": self._g.nodes[v].get("label", v),
                     "evidence": ev.__dict__ if ev else None
                 }) + "\n")
-            return buf.getvalue().encode()
+            return json_buf.getvalue().encode()
         raise ValueError(f"Unsupported format: {fmt}")

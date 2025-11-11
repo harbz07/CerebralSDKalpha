@@ -31,7 +31,7 @@ def _coerce_timestamp(value: Any) -> datetime:
     raise TypeError(f"Unsupported timestamp type: {type(value)!r}")
 
 
-@dataclass(slots=True)
+@dataclass(slots=True)  # type: ignore[call-overload]
 class MemoryEvent:
     """Container for all memory subsystems.
 
