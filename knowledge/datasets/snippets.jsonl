@@ -1,3 +1,3 @@
-{"title": "Alpha kickoff", "text": "Alice presented the Alpha project roadmap including timeline."}
-{"title": "Beta wrap-up", "text": "Bob summarised the Beta project learnings for the team."}
-{"title": "Gamma planning", "text": "Carol scheduled planning for the Gamma project release."}
+{"id": "snip-001", "title": "Atlas weekly", "content": "Harvey presented milestone 7 to the foundation board.", "tags": ["update", "foundation"]}
+{"id": "snip-002", "title": "Summit venue", "content": "Lisbon congress centre reserved for Cerebral Summit.", "tags": ["event", "logistics"]}
+{"id": "snip-003", "title": "Graph stack", "content": "Parietal graph prototypes run on NetworkX with JSONL exports.", "tags": ["kg", "engineering"]}
