@@ -1,0 +1,3 @@
+{"id": "qa-001", "query": "alpha project owner", "answers": ["Alpha project is owned by Alice"], "embedding": [1.0, 0.0, 0.0, 0.0]}
+{"id": "qa-002", "query": "beta project owner", "answers": ["Beta project is owned by Bob"], "embedding": [0.0, 1.0, 0.0, 0.0]}
+{"id": "qa-003", "query": "gamma project owner", "answers": ["Gamma project is owned by Carol"], "embedding": [0.0, 0.0, 1.0, 0.0]}
